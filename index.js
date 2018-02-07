@@ -1,3 +1,4 @@
+require('dotenv').config()
 const http = require('http')
 const express = require('express')
 const app = express()
@@ -17,7 +18,7 @@ module.exports = Blog
 app.use(cors())
 app.use(bodyParser.json())
 
-const mongoUrl = 'mongodb://localhost/bloglist'
+const mongoUrl =  process.env.MONGODB_URI
 mongoose.connect(mongoUrl)
 mongoose.Promise = global.Promise
 
