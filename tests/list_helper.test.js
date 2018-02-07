@@ -34,13 +34,26 @@ describe('most blogs', () => {
         expect(listHelper.mostBlogs([])).toBe(undefined)
     })
 
-    test('of many blogs Robert C. Martin with 3 blogs', () => {
+    test('of many blogs is Robert C. Martin with 3 blogs', () => {
         expect(listHelper.mostBlogs(blogs)).toEqual({
             author: 'Robert C. Martin',
             blogs: 3
         })
     })
+})
 
+describe('most likes', () => {
+
+    test('of empty list is undefined', () => {
+        expect(listHelper.mostLikes([])).toBe(undefined)
+    })
+
+    test('of many blogs is Dijkstra with 17 likes', () => {
+        expect(listHelper.mostLikes(blogs)).toEqual({
+            author: 'Edsger W. Dijkstra',
+            votes: 17
+        })
+    })
 })
 
 const blogs = [
