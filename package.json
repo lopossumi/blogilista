@@ -28,6 +28,7 @@
     "nodemon": "^1.14.12"
   },
   "devDependencies": {
+    "babel-eslint": "^8.2.1",
     "eslint": "^4.17.0",
     "jest": "^22.2.0",
     "supertest": "^3.0.0"
