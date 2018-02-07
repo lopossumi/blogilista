@@ -30,7 +30,7 @@ blogRouter.get('/:id', (request, response) => {
             }
         })
         .catch(error => {
-            console.log(error)
+            console.log(error.message)
             response.status(400).send({ error: 'malformatted id' })
         })
 })
@@ -43,7 +43,7 @@ blogRouter.delete('/:id', (request, response) => {
             response.status(204).end()
         })
         .catch(error => {
-            console.log(error)
+            console.log(error.message)
             response.status(400).send({ error: 'malformatted id' })
         })
 })

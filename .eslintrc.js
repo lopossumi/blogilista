@@ -22,5 +22,10 @@ module.exports = {
             "never"
         ],
         "no-console":0
+    },
+    "globals": {
+        "test": true,
+        "expect": true,
+        "describe": true
     }
 };
