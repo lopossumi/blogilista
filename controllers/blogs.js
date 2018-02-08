@@ -14,6 +14,9 @@ blogRouter.post('/', (request, response) => {
         .then(result => {
             response.status(201).json(result)
         })
+        .catch(error => {
+            response.status(400).send({ error: error.message })
+        })
 })
 
 blogRouter.get('/:id', (request, response) => {
