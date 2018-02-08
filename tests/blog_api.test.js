@@ -50,12 +50,17 @@ const invalidTestBlog = {
 }
 
 describe('POST /api/blogs', () => {
-    test('valid blog can be added', async () => {
+    test('valid blog can be added; total number increases', async () => {
         await api
             .post('/api/blogs')
             .send(validTestBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
+
+        const response = await api
+            .get('/api/blogs')
+
+        expect(response.body.length).toBe(testBlogs.length+1)
     })
     test('empty blog is not added', async () => {
         await api
