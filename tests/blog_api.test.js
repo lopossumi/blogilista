@@ -43,10 +43,16 @@ const validTestBlog = {
     likes: 3
 }
 
-const invalidTestBlog = {
+const noUrlTestBlog = {
     author: 'Torsti Postaaja',
     title: 'Torsti Posti',
     likes: 1
+}
+
+const noTitleTestBlog = {
+    author: 'Torsti Postaaja',
+    url: 'https://testing.com/123',
+    likes: 5,
 }
 
 const unpopularTestBlog = {
@@ -74,10 +80,16 @@ describe('POST /api/blogs', () => {
             .send({})
             .expect(400)
     })
+    test('blog without title is not added', async () => {
+        await api
+            .post('/api/blogs')
+            .send(noTitleTestBlog)
+            .expect(400)
+    })
     test('blog without url is not added', async () => {
         await api
             .post('/api/blogs')
-            .send(invalidTestBlog)
+            .send(noUrlTestBlog)
             .expect(400)
     })
     test('blog without likes is added and likes are set to 0', async () => {
