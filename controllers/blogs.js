@@ -33,17 +33,13 @@ blogRouter.get('/:id', (request, response) => {
         })
 })
 
-blogRouter.delete('/:id', (request, response) => {
-    Blog
-        .findByIdAndRemove(request.params.id)
-        .then(result => {
-            console.log(result)
-            response.status(204).end()
-        })
-        .catch(error => {
-            console.log(error.message)
-            response.status(400).send({ error: 'malformatted id' })
-        })
+blogRouter.delete('/:id', async (request, response) => {
+    try {
+        await Blog.findByIdAndRemove(request.params.id)
+        response.status(204).end()
+    } catch (error) {
+        response.status(400).send({ error: 'malformatted id' })
+    }
 })
 
 // notesRouter.put('/:id', (request, response) => {
