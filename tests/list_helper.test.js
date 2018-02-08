@@ -26,7 +26,6 @@ describe('favorite blog', () => {
             likes: 12
         })
     })
-
 })
 
 describe('most blogs', () => {

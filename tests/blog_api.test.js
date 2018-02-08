@@ -83,6 +83,35 @@ describe('GET /api/blogs', () => {
     })
 })
 
+describe('DELETE /api/blogs/id', () => {
+    let initialBlogs
+
+    beforeAll(async () => {
+        await Blog.remove({})
+    
+        for (const blog of data.testBlogList) {
+            let blogObject = new Blog(blog)
+            await blogObject.save()
+        }
+        initialBlogs = await blogsInDb()
+    })
+
+    test('third blog is removed', async () => {
+        await api
+            .delete('/api/blogs/'+initialBlogs[2].id)
+            .expect(204)
+        
+        const numberOfBlogs = (await blogsInDb()).length
+        expect(numberOfBlogs).toBe(initialBlogs.length-1)
+    })
+
+    test('try to remove with malformatted id', async () => {
+        await api
+            .delete('/api/blogs/'+1232)
+            .expect(400)
+    })
+})
+
 afterAll(() => {
     server.close()
 })
