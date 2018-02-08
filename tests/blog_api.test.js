@@ -129,14 +129,12 @@ describe('PUT /api/blogs/id', () => {
         const result = await api
             .put('/api/blogs/'+initialBlogs[2].id)
             .send({
-                author: initialBlogs[2].author,
-                title: initialBlogs[2].title,
-                url: initialBlogs[2].url,
                 likes: 999
             })
             .expect(200)
             .expect('Content-Type', /application\/json/)
         expect(result.body.likes).toBe(999)
+        expect(result.body.author).toBe(initialBlogs[2].author)
     })
 })
 
