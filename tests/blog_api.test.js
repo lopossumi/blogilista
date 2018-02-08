@@ -112,6 +112,34 @@ describe('DELETE /api/blogs/id', () => {
     })
 })
 
+describe('PUT /api/blogs/id', () => {
+    let initialBlogs
+
+    beforeAll(async () => {
+        await Blog.remove({})
+    
+        for (const blog of data.testBlogList) {
+            let blogObject = new Blog(blog)
+            await blogObject.save()
+        }
+        initialBlogs = await blogsInDb()
+    })
+
+    test('third blog likes are set to 999', async () => {
+        const result = await api
+            .put('/api/blogs/'+initialBlogs[2].id)
+            .send({
+                author: initialBlogs[2].author,
+                title: initialBlogs[2].title,
+                url: initialBlogs[2].url,
+                likes: 999
+            })
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        expect(result.body.likes).toBe(999)
+    })
+})
+
 afterAll(() => {
     server.close()
 })

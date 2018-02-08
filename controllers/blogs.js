@@ -42,23 +42,20 @@ blogRouter.delete('/:id', async (request, response) => {
     }
 })
 
-// notesRouter.put('/:id', (request, response) => {
-//   const body = request.body
-
-//   const note = {
-//     content: body.content,
-//     important: body.important
-//   }
-
-//   Note
-//     .findByIdAndUpdate(request.params.id, note, { new: true })
-//     .then(updatedNote => {
-//       response.json(formatNote(updatedNote))
-//     })
-//     .catch(error => {
-//       console.log(error)
-//       response.status(400).send({ error: 'malformatted id' })
-//     })
-// })
+blogRouter.put('/:id', async (request, response)  => {
+    const body = request.body
+    const blog = {
+        author: body.author,
+        title: body.title,
+        url: body.url,
+        likes: body.likes
+    }
+    try{
+        const updated = await Blog.findByIdAndUpdate(request.params.id, blog, {new:true})
+        response.status(200).json(updated)
+    }catch (error){
+        response.status(400).send({ error: 'malformatted id' })
+    }
+})
 
 module.exports = blogRouter
