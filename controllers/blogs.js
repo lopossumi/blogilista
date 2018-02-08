@@ -13,7 +13,6 @@ blogRouter.post('/', async (request, response) => {
         await blog.save()
         return response.status(201).json(blog)
     } catch (error) {
-        console.log(error.message)
         response.status(400).send({ error: error.message })
     }
 })

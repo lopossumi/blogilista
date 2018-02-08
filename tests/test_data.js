@@ -1,4 +1,29 @@
-const blogs = [
+const validTestBlog = {
+    author: 'Testi Postaaja',
+    title: 'Testi Posti',
+    url: 'https://test.com',
+    likes: 3
+}
+
+const noUrlTestBlog = {
+    author: 'Torsti Postaaja',
+    title: 'Torsti Posti',
+    likes: 1
+}
+
+const noTitleTestBlog = {
+    author: 'Torsti Postaaja',
+    url: 'https://testing.com/123',
+    likes: 5,
+}
+
+const unpopularTestBlog = {
+    author: 'Torsti Postaaja',
+    title: 'Torsti Postaajan epäsuositut jutut',
+    url: 'https://testing.com/vmp',
+}
+
+const testBlogList = [
     {
         _id: '5a422a851b54a676234d17f7',
         title: 'React patterns',
@@ -50,5 +75,9 @@ const blogs = [
 ]
 
 module.exports = {
-    blogs
+    validTestBlog,
+    noUrlTestBlog,
+    noTitleTestBlog,
+    unpopularTestBlog,    
+    testBlogList
 }

@@ -1,5 +1,5 @@
 const listHelper = require('../utils/list_helper')
-const blogs = require('./test_data').blogs
+const blogs = require('./test_data').testBlogList
 
 describe('total likes', () => {
 
