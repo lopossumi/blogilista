@@ -49,6 +49,12 @@ const invalidTestBlog = {
     likes: 1
 }
 
+const unpopularTestBlog = {
+    author: 'Torsti Postaaja',
+    title: 'Torsti Postaajan epäsuositut jutut',
+    url: 'https://testing.com/vmp',
+}
+
 describe('POST /api/blogs', () => {
     test('valid blog can be added; total number increases', async () => {
         await api
@@ -73,6 +79,13 @@ describe('POST /api/blogs', () => {
             .post('/api/blogs')
             .send(invalidTestBlog)
             .expect(400)
+    })
+    test('blog without likes is added and likes are set to 0', async () => {
+        const response = await api
+            .post('/api/blogs')
+            .send(unpopularTestBlog)
+            .expect(201)
+        expect(response.body.likes).toBe(0)
     })
 })
 
