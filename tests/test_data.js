@@ -74,10 +74,26 @@ const testBlogList = [
     }
 ]
 
+const validUser={
+    username: 'teppotesti',
+    name: 'Teppo Testi',
+    password: 'secreto',
+    adult: true
+}
+
+const shortPasswordUser={
+    username: 'teppo2',
+    name: 'Teppo Toinen',
+    password: 's',
+    adult: true
+}
+
 module.exports = {
     validTestBlog,
     noUrlTestBlog,
     noTitleTestBlog,
     unpopularTestBlog,    
-    testBlogList
+    testBlogList,
+    validUser,
+    shortPasswordUser
 }
