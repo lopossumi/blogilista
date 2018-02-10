@@ -1,31 +1,54 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
+const getTokenFrom = (request) => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        return authorization.substring(7)
+    }
+    return null
+}
 
 blogRouter.get('/', async (request, response) => {
     const blog = await Blog
         .find({})
-        .populate('user', {username:1, name:1})
+        .populate('user', { username: 1, name: 1 })
     response.json(blog)
 })
 
 blogRouter.post('/', async (request, response) => {
 
     // proof of concept test code begins
-    const user = (await User.find({}))[0]
-    request.body.user = user._id
+    // const user = (await User.find({}))[0]
+    // request.body.user = user._id
 
-    const blog = new Blog(request.body)
+    // const blog = new Blog(request.body)
 
     try {
+        const token = getTokenFrom(request)
+        const decodedToken = jwt.verify(token, process.env.SECRET)
+
+        if(!token || !decodedToken.id){
+            return response.status(401).json({error: 'token missing or invalid'})
+        }
+
+        const user = await (User.findById(decodedToken.id))
+        request.body.user = user._id
+        const blog = new Blog(request.body)
+
         const savedBlog = await blog.save()
 
         user.blogs = user.blogs.concat(savedBlog._id)
         await user.save()
         return response.status(201).json(blog)
-    } catch (error) {
-        response.status(400).send({ error: error.message })
+    } catch (exception) {
+        if(exception.name === 'JsonWebTokenError'){
+            response.status(401).json({error: exception.message})
+        } else {
+            response.status(500).send({ error: exception.message })
+        }
     }
 })
 
@@ -54,9 +77,9 @@ blogRouter.delete('/:id', async (request, response) => {
     }
 })
 
-blogRouter.put('/:id', async (request, response)  => {
+blogRouter.put('/:id', async (request, response) => {
     const initialBlog = await Blog.findById(request.params.id)
-    
+
     const body = request.body
     const blog = {
         author: body.author || initialBlog.author,
@@ -64,10 +87,10 @@ blogRouter.put('/:id', async (request, response)  => {
         url: body.url || initialBlog.url,
         likes: body.likes || initialBlog.likes
     }
-    try{
-        const updated = await Blog.findByIdAndUpdate(request.params.id, blog, {new:true})
+    try {
+        const updated = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
         response.status(200).json(updated)
-    }catch (error){
+    } catch (error) {
         response.status(400).send({ error: 'malformatted id' })
     }
 })
