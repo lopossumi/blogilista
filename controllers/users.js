@@ -33,10 +33,39 @@ userRouter.post('/', async (request, response) => {
 
 userRouter.get('/', async (request, response) => {
     try {
-        const users = await User.find({})
+        const users = await User
+            .find({})
+            .populate('blogs')
         return response.status(200).json(users.map(User.format))
     } catch (error) {
         response.status(500).send({ error: error.message })
+    }
+})
+
+userRouter.delete('/:id', async (request, response) => {
+    try {
+        await User.findByIdAndRemove(request.params.id)
+        response.status(204).end()
+    } catch (error) {
+        response.status(400).send({ error: 'malformatted id' })
+    }
+})
+
+userRouter.put('/:id', async (request, response)  => {
+    const initialUser = await User.findById(request.params.id)
+    
+    const body = request.body
+    const user = {
+        username: body.username || initialUser.username,
+        name: body.name || initialUser.name,
+        adult: body.adult || initialUser.adult,
+        passwordHash: body.passwordHash || initialUser.passwordHash
+    }
+    try{
+        const updated = await User.findByIdAndUpdate(request.params.id, user, {new:true})
+        response.status(200).json(updated)
+    }catch (error){
+        response.status(400).send({ error: 'malformatted id' })
     }
 })
 
