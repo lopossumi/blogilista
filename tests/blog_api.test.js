@@ -6,25 +6,38 @@ const helper = require('./test_helper')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+const initialize = async () => {
+    await Blog.remove({})
+    await User.remove({})
+    await api
+        .post('/api/users/')
+        .send(data.validUser)
+
+    const login = await api
+        .post('/api/login/')
+        .send({
+            username: data.validUser.username,
+            password: data.validUser.password
+        })
+    const token = login.body.token
+
+    for(let blog of data.testBlogList){
+        await api
+            .post('/api/blogs')
+            .set('Authorization', 'bearer ' + token)
+            .send(blog)
+    }
+    return token
+}
+
+
 describe('POST /api/blogs', () => {
     let initialBlogs
     let token
 
     beforeAll(async () => {
+        token = await initialize()
         initialBlogs = await helper.blogsInDb()
-        
-        // Remove users and add a valid one
-        await User.remove({})
-        await api
-            .post('/api/users/')
-            .send(data.validUser)
-        const login = await api
-            .post('/api/login/')
-            .send({
-                username: data.validUser.username,
-                password: data.validUser.password
-            })
-        token = login.body.token
     })
 
     test('valid blog can be added; total number increases', async () => {
@@ -78,16 +91,11 @@ describe('POST /api/blogs', () => {
 })
 
 describe('GET /api/blogs', () => {
-    let blogsInDatabase
-
+    let initialBlogs
+    
     beforeAll(async () => {
-        await Blog.remove({})
-
-        for (const blog of data.testBlogList) {
-            let blogObject = new Blog(blog)
-            await blogObject.save()
-        }
-        blogsInDatabase = await helper.blogsInDb()
+        await initialize()
+        initialBlogs = await helper.blogsInDb()
     })
 
     test('blogs are returned as json', async () => {
@@ -101,7 +109,7 @@ describe('GET /api/blogs', () => {
         const response = await api
             .get('/api/blogs')
 
-        expect(response.body.length).toBe(blogsInDatabase.length)
+        expect(response.body.length).toBe(initialBlogs.length)
     })
 
     test('the first blog is about React Patterns', async () => {
@@ -113,31 +121,43 @@ describe('GET /api/blogs', () => {
 })
 
 describe('DELETE /api/blogs/id', () => {
-    let initialBlogs
+    let token
+    let idToRemove
 
     beforeAll(async () => {
-        await Blog.remove({})
-
-        for (const blog of data.testBlogList) {
-            let blogObject = new Blog(blog)
-            await blogObject.save()
-        }
-        initialBlogs = await helper.blogsInDb()
+        //remove blogs and users
+        token = await initialize()
+        idToRemove = (await helper.blogsInDb())[1]._id
     })
 
-    test('third blog is removed', async () => {
+    test('there are blogs in the DB', async () => {
+        expect( (await helper.blogsInDb()).length).toBe(data.testBlogList.length)
+    })
+
+    test('a blog is not removed without token', async () => {
         await api
-            .delete('/api/blogs/' + initialBlogs[2].id)
+            .delete('/api/blogs/' + idToRemove)
+            .expect(401)
+
+        const numberOfBlogs = (await helper.blogsInDb()).length
+        expect(numberOfBlogs).toBe(data.testBlogList.length)
+    })
+    
+    test('malformatted id (with valid token)', async () => {
+        await api
+            .delete('/api/blogs/' + 1232)
+            .set('Authorization', 'bearer ' + token)
+            .expect(400)
+    })
+
+    test('a valid blog is removed when token is provided', async () => {
+        await api
+            .delete('/api/blogs/' + idToRemove)
+            .set('Authorization', 'bearer ' + token)
             .expect(204)
 
         const numberOfBlogs = (await helper.blogsInDb()).length
-        expect(numberOfBlogs).toBe(initialBlogs.length - 1)
-    })
-
-    test('try to remove with malformatted id', async () => {
-        await api
-            .delete('/api/blogs/' + 1232)
-            .expect(400)
+        expect(numberOfBlogs).toBe(data.testBlogList.length - 1)
     })
 })
 
@@ -145,12 +165,7 @@ describe('PUT /api/blogs/id', () => {
     let initialBlogs
 
     beforeAll(async () => {
-        await Blog.remove({})
-
-        for (const blog of data.testBlogList) {
-            let blogObject = new Blog(blog)
-            await blogObject.save()
-        }
+        token = await initialize()
         initialBlogs = await helper.blogsInDb()
     })
 

@@ -19,9 +19,15 @@ blogRouter.post('/', async (request, response) => {
             return response.status(401).json({error: 'token missing or invalid'})
         }
 
-        const user = await (User.findById(decodedToken.id))
-        request.body.user = user._id
-        const blog = new Blog(request.body)
+        const user = await User.findById(decodedToken.id)
+        
+        const blog = new Blog({
+            title: request.body.title,
+            author: request.body.author,
+            url: request.body.url,
+            likes: request.body.likes,
+            user: user._id
+        })
 
         const savedBlog = await blog.save()
 
@@ -55,10 +61,25 @@ blogRouter.get('/:id', (request, response) => {
 
 blogRouter.delete('/:id', async (request, response) => {
     try {
-        await Blog.findByIdAndRemove(request.params.id)
-        response.status(204).end()
-    } catch (error) {
-        response.status(400).send({ error: 'malformatted id' })
+        const decodedToken = jwt.verify(request.token, process.env.SECRET)
+        if(!request.token || !decodedToken.id){
+            return response.status(401).json({error: 'token missing or invalid'})
+        }
+        const user = await User.findById(decodedToken.id)
+        const blog = await Blog.findById(request.params.id)
+
+        if ( blog.user.toString() === user._id.toString()) {
+            await Blog.findByIdAndRemove(request.params.id)
+            response.status(204).end()
+        } else {
+            response.status(401).end()
+        }
+    } catch (exception) {
+        if(exception.name === 'JsonWebTokenError'){
+            response.status(401).json({error: exception.message})
+        } else {
+            response.status(400).send({error: 'malformatted id' })
+        }
     }
 })
 
