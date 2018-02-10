@@ -20,12 +20,6 @@ blogRouter.get('/', async (request, response) => {
 
 blogRouter.post('/', async (request, response) => {
 
-    // proof of concept test code begins
-    // const user = (await User.find({}))[0]
-    // request.body.user = user._id
-
-    // const blog = new Blog(request.body)
-
     try {
         const token = getTokenFrom(request)
         const decodedToken = jwt.verify(token, process.env.SECRET)
