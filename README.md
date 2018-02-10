@@ -1,2 +1,2 @@
 # blogilista
-Blogilista
+Blogilista-sovelluksen backend. Autentikointia käytetään tätä kirjoittaessa vasta tehtävissä vaadituissa operaatioissa.
