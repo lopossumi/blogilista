@@ -165,7 +165,7 @@ describe('PUT /api/blogs/id', () => {
     let initialBlogs
 
     beforeAll(async () => {
-        token = await initialize()
+        await initialize()
         initialBlogs = await helper.blogsInDb()
     })
 
