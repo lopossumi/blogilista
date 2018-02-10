@@ -8,13 +8,29 @@ const User = require('../models/user')
 
 describe('POST /api/blogs', () => {
     let initialBlogs
+    let token
+
     beforeAll(async () => {
         initialBlogs = await helper.blogsInDb()
+        
+        // Remove users and add a valid one
+        await User.remove({})
+        await api
+            .post('/api/users/')
+            .send(data.validUser)
+        const login = await api
+            .post('/api/login/')
+            .send({
+                username: data.validUser.username,
+                password: data.validUser.password
+            })
+        token = login.body.token
     })
 
     test('valid blog can be added; total number increases', async () => {
         await api
             .post('/api/blogs')
+            .set('Authorization', 'bearer ' + token)
             .send(data.validTestBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -22,27 +38,39 @@ describe('POST /api/blogs', () => {
         const numberOfBlogs = (await helper.blogsInDb()).length
         expect(numberOfBlogs).toBe(initialBlogs.length + 1)
     })
+
+    test('valid blog cannot be added without token', async () => {
+        await api
+            .post('/api/blogs')
+            .send(data.validTestBlog)
+            .expect(401)
+    })
+
     test('empty blog is not added', async () => {
         await api
             .post('/api/blogs')
+            .set('Authorization', 'bearer ' + token)
             .send({})
             .expect(400)
     })
     test('blog without title is not added', async () => {
         await api
             .post('/api/blogs')
+            .set('Authorization', 'bearer ' + token)
             .send(data.noTitleTestBlog)
             .expect(400)
     })
     test('blog without url is not added', async () => {
         await api
             .post('/api/blogs')
+            .set('Authorization', 'bearer ' + token)
             .send(data.noUrlTestBlog)
             .expect(400)
     })
     test('blog without likes is added and likes are set to 0', async () => {
         const response = await api
             .post('/api/blogs')
+            .set('Authorization', 'bearer ' + token)
             .send(data.unpopularTestBlog)
             .expect(201)
         expect(response.body.likes).toBe(0)
@@ -176,6 +204,29 @@ describe('/api/users/', () => {
             .expect(200)
         expect(result.body[0].name).toBe(data.validUser.name)
     })
+})
+
+describe('POST /api/login/', () => {
+    beforeAll(async () => {
+        await User.remove({})
+
+        await api
+            .post('/api/users/')
+            .send(data.validUser)
+    })
+
+    test('logging with valid user returns a token', async () => {
+        const result = await api
+            .post('/api/login/')
+            .send({
+                username: data.validUser.username,
+                password: data.validUser.password
+            })
+            .expect(200)
+        expect(result.body.username).toBe(data.validUser.username)
+        expect(result.body.token.length>10)
+    })
+
 })
 
 afterAll(() => {

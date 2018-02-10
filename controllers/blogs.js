@@ -32,7 +32,7 @@ blogRouter.post('/', async (request, response) => {
         if(exception.name === 'JsonWebTokenError'){
             response.status(401).json({error: exception.message})
         } else {
-            response.status(500).send({ error: exception.message })
+            response.status(400).send({ error: exception.message })
         }
     }
 })
