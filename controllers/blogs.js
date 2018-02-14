@@ -29,11 +29,12 @@ blogRouter.post('/', async (request, response) => {
             user: user._id
         })
 
-        const savedBlog = await blog.save()
+        let savedBlog = await blog.save()
+        await savedBlog.populate('user', { username: 1, name: 1 }).execPopulate()
 
         user.blogs = user.blogs.concat(savedBlog._id)
         await user.save()
-        return response.status(201).json(blog)
+        return response.status(201).json(savedBlog)
     } catch (exception) {
         if(exception.name === 'JsonWebTokenError'){
             response.status(401).json({error: exception.message})
@@ -91,10 +92,13 @@ blogRouter.put('/:id', async (request, response) => {
         author: body.author || initialBlog.author,
         title: body.title || initialBlog.title,
         url: body.url || initialBlog.url,
-        likes: body.likes || initialBlog.likes
+        likes: body.likes || initialBlog.likes,
+        user: initialBlog.user
     }
     try {
-        const updated = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+        const updated = await Blog
+            .findByIdAndUpdate(request.params.id, blog, { new: true })
+            .populate('user', { username: 1, name: 1 })
         response.status(200).json(updated)
     } catch (error) {
         response.status(400).send({ error: 'malformatted id' })

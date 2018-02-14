@@ -4,7 +4,10 @@ const userSchema = mongoose.Schema({
     username: String,
     name: String,
     adult: Boolean,
-    passwordHash: String,
+    passwordHash: {
+        type: String,
+        select: false},
+        
     blogs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Blog' }]
 })
 
