@@ -244,6 +244,7 @@ describe('POST /api/login/', () => {
 
 })
 
-afterAll(() => {
+afterAll(async () => {
+    await initialize()
     server.close()
 })
